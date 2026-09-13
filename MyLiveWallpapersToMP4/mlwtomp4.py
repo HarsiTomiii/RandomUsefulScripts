@@ -51,18 +51,38 @@ def browse_for_file():
         print("no file selected")
 
 
-if __name__ == "__main__":
-    mlw_files = [f for f in os.listdir(DEFAULT_FOLDER) if f.lower().endswith(".mlw")]
-    pending = [
-        f for f in mlw_files
-        if not os.path.exists(os.path.join(DEFAULT_FOLDER, os.path.splitext(f)[0] + ".mp4"))
-    ]
+def browse_for_folder():
+    root = tk.Tk()
+    root.withdraw()
+    folder = filedialog.askdirectory(title="Select folder containing .mlw files")
+    return folder or None
 
-    if not mlw_files or not pending:
-        print("all .mlw files in the folder are already converted")
+
+if __name__ == "__main__":
+    folder = DEFAULT_FOLDER
+    if not os.path.isdir(folder):
+        print(f"default folder not found: {folder}")
+        answer = input("browse for the wallpapers folder instead? [Y/n]: ").strip().lower()
+        if answer in ("", "y", "yes"):
+            folder = browse_for_folder()
+        else:
+            folder = None
+
+    mlw_files = []
+    pending = []
+    if folder:
+        mlw_files = [f for f in os.listdir(folder) if f.lower().endswith(".mlw")]
+        pending = [
+            f for f in mlw_files
+            if not os.path.exists(os.path.join(folder, os.path.splitext(f)[0] + ".mp4"))
+        ]
+
+    if not folder or not mlw_files or not pending:
+        if folder:
+            print("all .mlw files in the folder are already converted")
         answer = input("browse for a file instead? [Y/n]: ").strip().lower()
         if answer in ("", "y", "yes"):
             browse_for_file()
     else:
         for f in pending:
-            extract_mlw(os.path.join(DEFAULT_FOLDER, f))
+            extract_mlw(os.path.join(folder, f))
