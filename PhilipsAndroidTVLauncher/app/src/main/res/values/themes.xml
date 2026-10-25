@@ -1,0 +1,30 @@
+<resources>
+    <color name="background">#0E1014</color>
+    <color name="card">#1FFFFFFF</color>
+    <color name="focus_ring">#F2F4F8</color>
+    <color name="text_primary">#F2F4F8</color>
+    <color name="text_secondary">#9AA3B2</color>
+    <color name="progress">#AA5CC3</color>
+    <color name="progress_track">#66000000</color>
+
+    <style name="Theme.Launcher" parent="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@drawable/bg_home</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowShowWallpaper">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <style name="Pill">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/pill_bg</item>
+        <item name="android:textColor">@color/pill_text</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+</resources>

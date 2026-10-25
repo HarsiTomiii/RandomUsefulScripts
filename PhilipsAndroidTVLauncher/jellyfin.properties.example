@@ -1,0 +1,4 @@
+# Copy to jellyfin.properties (git-ignored) to enable the "Continue watching" row.
+url=http://10.0.10.50:8096
+apiKey=<Jellyfin dashboard -> API keys>
+user=Tomi
