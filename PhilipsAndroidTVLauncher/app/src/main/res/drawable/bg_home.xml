@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Deep navy-to-plum gradient with two soft glows, used as the window background. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="315"
+                android:centerColor="#FF121433"
+                android:endColor="#FF1D0D2C"
+                android:startColor="#FF0A1730"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:centerX="0.12"
+                android:centerY="0.05"
+                android:endColor="#00000000"
+                android:gradientRadius="75%p"
+                android:startColor="#552A6F97"
+                android:type="radial" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:centerX="0.92"
+                android:centerY="1.0"
+                android:endColor="#00000000"
+                android:gradientRadius="80%p"
+                android:startColor="#55702A8C"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>

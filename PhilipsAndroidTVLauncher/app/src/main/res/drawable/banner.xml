@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16:9 launcher banner: four app tiles on a dark background. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path android:fillColor="#0E1014" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#F2F4F8" android:pathData="M100,40h52v44h-52z" />
+    <path android:fillColor="#9AA3B2" android:pathData="M168,40h52v44h-52z" />
+    <path android:fillColor="#9AA3B2" android:pathData="M100,96h52v44h-52z" />
+    <path android:fillColor="#5C6575" android:pathData="M168,96h52v44h-52z" />
+</vector>

@@ -6,6 +6,7 @@ A grab-bag of small, standalone scripts — each one solves a specific one-off p
 
 - [MyLiveWallpapersToMP4/mlwtomp4.py](MyLiveWallpapersToMP4/README.md) — Decrypts `.mlw` live wallpaper files (from the MyLiveWallpapers app) and extracts the underlying `.mp4` video.
 - [IcsToGoogleCalendar/icsToGoogleCalendar.py](IcsToGoogleCalendar/README.md) — Imports a `.ics` file as an event into Google Calendar and opens it in your browser.
+- [PhilipsAndroidTVLauncher/](PhilipsAndroidTVLauncher/README.md) — A minimal home screen for a Philips Google TV with a Jellyfin "Continue watching" row (Android app).
 
 ## Usage
 
