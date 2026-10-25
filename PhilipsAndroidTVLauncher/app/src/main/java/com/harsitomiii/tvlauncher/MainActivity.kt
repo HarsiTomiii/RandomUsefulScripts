@@ -7,22 +7,25 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
+    private lateinit var scroll: ScrollView
     private lateinit var heroRow: LinearLayout
-    private lateinit var continueSection: View
-    private lateinit var continueRow: LinearLayout
+    private lateinit var continueWatching: MediaRow
+    private lateinit var recommended: MediaRow
 
     private val jellyfinExecutor = Executors.newSingleThreadExecutor()
     private val imageExecutor = Executors.newFixedThreadPool(3)
-    // What the row currently shows, so a refresh that changes nothing doesn't steal focus.
-    private var shownItems: List<String> = emptyList()
+    // Random picks stay put while browsing and are reshuffled after a while.
+    private var recommendedLoadedAt = 0L
 
     // Rebuild the tiles when one of the pinned apps is installed, updated or removed.
     private val packageReceiver = object : BroadcastReceiver() {
@@ -32,12 +35,14 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        scroll = findViewById(R.id.scroll)
         heroRow = findViewById(R.id.hero_row)
-        continueSection = findViewById(R.id.continue_section)
-        continueRow = findViewById(R.id.continue_row)
+        continueWatching = MediaRow(R.id.continue_section, R.string.continue_watching, Jellyfin::playIntent)
+        recommended = MediaRow(R.id.recommended_section, R.string.recommended_movies, Jellyfin::detailsIntent)
 
         findViewById<TextView>(R.id.profile_button).setOnClickListener { Launch.profilePicker(this) }
         bindApps()
+        scroll.viewTreeObserver.addOnGlobalFocusChangeListener { _, focused -> scrollToShow(focused) }
 
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_PACKAGE_ADDED)
@@ -55,7 +60,7 @@ class MainActivity : Activity() {
     // Coming back from Wholphin is the moment progress changes, so refresh on every resume.
     override fun onResume() {
         super.onResume()
-        refreshContinueWatching()
+        refreshJellyfin()
     }
 
     override fun onDestroy() {
@@ -96,42 +101,86 @@ class MainActivity : Activity() {
         (Cards.firstCard(heroRow).takeIf { it !== side } ?: allApps).requestFocus()
     }
 
-    private fun refreshContinueWatching() {
-        if (!Jellyfin.isConfigured) return
-        jellyfinExecutor.execute {
-            val items = try {
-                Jellyfin.continueWatching()
-            } catch (e: Exception) {
-                // Keep whatever is showing; the server may just be unreachable for a moment.
-                Log.w("TvLauncher", "Continue watching failed", e)
-                return@execute
-            }
-            runOnUiThread { if (!isDestroyed) bindContinueWatching(items) }
-        }
-    }
-
-    private fun bindContinueWatching(items: List<MediaItem>) {
-        val signature = items.map { "${it.id}:${it.positionMs}" }
-        if (signature == shownItems) return
-        shownItems = signature
-
-        val hadFocus = continueRow.hasFocus()
-        continueRow.removeAllViews()
-        continueSection.visibility = if (items.isEmpty()) View.GONE else View.VISIBLE
-        for (item in items) {
-            val image = Cards.addMedia(continueRow, item) { Launch.media(this, item) }
-            val url = item.imageUrl ?: continue
-            imageExecutor.execute {
-                val bitmap = Jellyfin.image(url) ?: return@execute
-                runOnUiThread { image.setImageBitmap(bitmap) }
-            }
-        }
-        if (hadFocus) Cards.firstCard(continueRow)?.findViewById<View>(R.id.card)?.requestFocus()
-    }
-
     private fun addTile(parent: LinearLayout, size: CardSize, tile: Tile) {
         val app = Apps.find(packageManager, tile.packageName) ?: return
         val card = Cards.addTile(parent, size, tile, app)
         card.setOnClickListener { Launch.app(this, app) }
+    }
+
+    private fun refreshJellyfin() {
+        if (!Jellyfin.isConfigured) return
+        val reshuffle = recommendedLoadedAt == 0L ||
+            SystemClock.elapsedRealtime() - recommendedLoadedAt > RESHUFFLE_AFTER_MS
+        jellyfinExecutor.execute {
+            continueWatching.load(Jellyfin::continueWatching)
+            if (reshuffle && recommended.load(Jellyfin::randomMovies)) {
+                runOnUiThread { recommendedLoadedAt = SystemClock.elapsedRealtime() }
+            }
+        }
+    }
+
+    /** Top rows scroll the page back to the top; lower rows scroll until the whole row is visible. */
+    private fun scrollToShow(focused: View?) {
+        val section = listOf(continueWatching, recommended).firstOrNull { it.contains(focused) }?.section
+        val content = scroll.getChildAt(0)
+        val target = if (section == null) 0 else section.bottom + content.paddingBottom - scroll.height
+        scroll.smoothScrollTo(0, target.coerceAtLeast(0))
+    }
+
+    /** One titled row of Jellyfin items; [open] decides what selecting an item does in Wholphin. */
+    private inner class MediaRow(sectionId: Int, title: Int, private val open: (MediaItem) -> Intent) {
+        val section: View = findViewById(sectionId)
+        private val items: LinearLayout = section.findViewById(R.id.row_items)
+        // What the row currently shows, so a refresh that changes nothing doesn't steal focus.
+        private var shown: List<String> = emptyList()
+
+        init {
+            section.findViewById<TextView>(R.id.row_title).setText(title)
+        }
+
+        fun contains(view: View?): Boolean {
+            var v = view
+            while (v != null) {
+                if (v === section) return true
+                v = v.parent as? View
+            }
+            return false
+        }
+
+        /** Runs [fetch] on the calling (background) thread and shows the result. False on failure. */
+        fun load(fetch: () -> List<MediaItem>): Boolean {
+            val result = try {
+                fetch()
+            } catch (e: Exception) {
+                // Keep whatever is showing; the server may just be unreachable for a moment.
+                Log.w("TvLauncher", "Jellyfin row failed", e)
+                return false
+            }
+            runOnUiThread { if (!isDestroyed) bind(result) }
+            return true
+        }
+
+        private fun bind(result: List<MediaItem>) {
+            val signature = result.map { "${it.id}:${it.positionMs}" }
+            if (signature == shown) return
+            shown = signature
+
+            val hadFocus = items.hasFocus()
+            items.removeAllViews()
+            section.visibility = if (result.isEmpty()) View.GONE else View.VISIBLE
+            for (item in result) {
+                val image = Cards.addMedia(items, item) { Launch.media(this@MainActivity, open(item), item) }
+                val url = item.imageUrl ?: continue
+                imageExecutor.execute {
+                    val bitmap = Jellyfin.image(url) ?: return@execute
+                    runOnUiThread { image.setImageBitmap(bitmap) }
+                }
+            }
+            if (hadFocus) Cards.firstCard(items)?.findViewById<View>(R.id.card)?.requestFocus()
+        }
+    }
+
+    private companion object {
+        const val RESHUFFLE_AFTER_MS = 60 * 60 * 1000L
     }
 }

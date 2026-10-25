@@ -3,6 +3,7 @@
     <string name="switch_profile">Switch profile</string>
     <string name="all_apps">All apps</string>
     <string name="continue_watching">Continue watching</string>
+    <string name="recommended_movies">Movies you haven\'t seen</string>
     <string name="cannot_open">Could not open %1$s</string>
     <string name="home_service_label">TV Launcher Home button</string>
     <string name="home_service_description">Opens TV Launcher when you press Home. Holding Home still opens the Google TV panel.</string>

@@ -14,8 +14,8 @@ object Launch {
         if (!tryStart(activity, app.intent)) toast(activity, R.string.cannot_open, app.label)
     }
 
-    fun media(activity: Activity, item: MediaItem) {
-        if (!tryStart(activity, Jellyfin.playIntent(item))) toast(activity, R.string.cannot_open, item.title)
+    fun media(activity: Activity, intent: Intent, item: MediaItem) {
+        if (!tryStart(activity, intent)) toast(activity, R.string.cannot_open, item.title)
     }
 
     /**

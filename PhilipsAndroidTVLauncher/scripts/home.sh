@@ -3,6 +3,8 @@
 #   scripts/home.sh enable|disable [adb-serial]
 # Google TV ignores the HOME role, so "enable" also turns on HomeKeyService, which redirects the
 # Home key. Other accessibility services (e.g. Button Mapper) are left as they are.
+# Run "enable" again after every `adb install -r`: an updated service stays bound but stops
+# receiving keys until it is switched off and on.
 set -euo pipefail
 
 action=${1:?usage: $0 enable|disable [adb-serial]}
@@ -17,19 +19,27 @@ current=$(adb shell settings get secure enabled_accessibility_services | tr -d '
 # Drop our entry, keep everyone else's.
 others=$(tr ':' '\n' <<<"$current" | grep -v -x -F "$SERVICE" | grep -v '^$' | paste -sd: || true)
 
+# Sets the enabled services to the given list, or clears the setting when it is empty.
+set_services() {
+    if [[ -n $1 ]]; then
+        adb shell settings put secure enabled_accessibility_services "$1"
+    else
+        adb shell settings delete secure enabled_accessibility_services
+    fi
+}
+
 case $action in
 enable)
     adb shell cmd role add-role-holder android.app.role.HOME $PKG
-    adb shell settings put secure enabled_accessibility_services "${others:+$others:}$SERVICE"
+    # Off, then on, so the service is bound afresh.
+    set_services "$others"
+    sleep 1
+    set_services "${others:+$others:}$SERVICE"
     adb shell settings put secure accessibility_enabled 1
     ;;
 disable)
     adb shell cmd role add-role-holder android.app.role.HOME $STOCK
-    if [[ -n $others ]]; then
-        adb shell settings put secure enabled_accessibility_services "$others"
-    else
-        adb shell settings delete secure enabled_accessibility_services
-    fi
+    set_services "$others"
     ;;
 *)
     echo "usage: $0 enable|disable [adb-serial]" >&2

@@ -1,90 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Designed for the TV's 960x540dp canvas; padding keeps clear of overscan. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Designed for the TV's 960x540dp canvas; padding keeps clear of overscan. The first screen
+     (top bar, tiles, continue watching) fits without scrolling; lower rows scroll into view. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
-    android:clipToPadding="false"
-    android:orientation="vertical"
-    android:paddingStart="48dp"
-    android:paddingTop="27dp"
-    android:paddingEnd="48dp"
-    android:paddingBottom="27dp">
+    android:scrollbars="none">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/profile_button"
-            style="@style/Pill"
-            android:text="@string/switch_profile" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <TextClock
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:format12Hour="h:mm"
-            android:format24Hour="HH:mm"
-            android:textColor="@color/text_primary"
-            android:textSize="28sp" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <!-- Two hero tiles, then a column with the side apps and "All apps". -->
-    <LinearLayout
-        android:id="@+id/hero_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipChildren="false"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal" />
-
-    <LinearLayout
-        android:id="@+id/continue_section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:paddingStart="48dp"
+        android:paddingTop="27dp"
+        android:paddingEnd="48dp"
+        android:paddingBottom="27dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="@string/continue_watching"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp" />
-
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:scrollbars="none">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:id="@+id/continue_row"
+            <TextView
+                android:id="@+id/profile_button"
+                style="@style/Pill"
+                android:text="@string/switch_profile" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextClock
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clipChildren="false"
-                android:orientation="horizontal" />
-        </HorizontalScrollView>
-    </LinearLayout>
+                android:format12Hour="h:mm"
+                android:format24Hour="HH:mm"
+                android:textColor="@color/text_primary"
+                android:textSize="28sp" />
+        </LinearLayout>
 
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-</LinearLayout>
+        <!-- Two hero tiles, then a column with the side apps and "All apps". -->
+        <LinearLayout
+            android:id="@+id/hero_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:clipChildren="false"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" />
+
+        <include
+            android:id="@+id/continue_section"
+            layout="@layout/item_media_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp" />
+
+        <include
+            android:id="@+id/recommended_section"
+            layout="@layout/item_media_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp" />
+    </LinearLayout>
+</ScrollView>

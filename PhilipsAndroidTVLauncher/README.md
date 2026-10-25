@@ -5,6 +5,7 @@ A minimal home screen for a Philips Google TV (OLED708, Android 14). It replaces
 - two large tiles (Wholphin, YouTube), a small Steam Link tile and an **All apps** grid
 - a **Switch profile** button that opens Google TV's own profile chooser
 - a **Continue watching** row from Jellyfin (resume + next up for one user); selecting an item starts it in Wholphin as that user
+- a **Movies you haven't seen** row: random unwatched Jellyfin movies, reshuffled at most hourly; selecting one opens its page in Wholphin
 
 Picture, sound, Ambilight, inputs and settings are untouched — they stay on the remote's own buttons.
 
@@ -30,6 +31,8 @@ Picture, sound, Ambilight, inputs and settings are untouched — they stay on th
    ```bash
    scripts/home.sh enable    # scripts/home.sh disable to go back to the stock home
    ```
+
+   Run `scripts/home.sh enable` again after every reinstall: Android keeps the updated service bound but stops sending it the Home key until it is switched off and on.
 
 ## How it becomes the home screen
 
