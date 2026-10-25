@@ -21,9 +21,9 @@ class MediaItem(
 )
 
 /**
- * Minimal Jellyfin client for the "Continue watching" row: what the configured user is partway
- * through, followed by the next episode of shows they're following. All calls block, so run them
- * off the main thread.
+ * Minimal Jellyfin client for the home screen rows: what the configured user is partway through
+ * (plus the next episode of shows they're following), and a random pick of unwatched movies.
+ * All calls block, so run them off the main thread.
  */
 object Jellyfin {
     private const val TAG = "TvLauncher"
@@ -40,13 +40,11 @@ object Jellyfin {
     @Volatile private var serverId: String? = null
     @Volatile private var userId: String? = null
 
-    private val images = LruCache<String, Bitmap>(32)
+    // Enough for both rows.
+    private val images = LruCache<String, Bitmap>(2 * MAX_ITEMS + 8)
 
     fun continueWatching(): List<MediaItem> {
-        val user = userId ?: findUserId().also { userId = it }
-        if (serverId == null) serverId = get("/System/Info/Public").let(::JSONObject).getString("Id")
-        val query = "userId=$user&Limit=$MAX_ITEMS&EnableImageTypes=Primary,Thumb,Backdrop&ImageTypeLimit=1"
-
+        val query = baseQuery()
         val resume = items(get("/UserItems/Resume?$query&MediaTypes=Video"))
         val nextUp = items(get("/Shows/NextUp?$query&EnableResumable=false"))
         // Skip "next up" for a show that already has an episode in progress.
@@ -55,6 +53,10 @@ object Jellyfin {
             .take(MAX_ITEMS)
             .map(::toMediaItem)
     }
+
+    fun randomMovies(): List<MediaItem> =
+        items(get("/Items?${baseQuery()}&IncludeItemTypes=Movie&Recursive=true&IsPlayed=false&SortBy=Random"))
+            .map(::toMediaItem)
 
     fun image(url: String): Bitmap? =
         images.get(url) ?: try {
@@ -66,13 +68,25 @@ object Jellyfin {
 
     /** Starts playback in Wholphin, resuming where the user left off, signed in as the configured user. */
     fun playIntent(item: MediaItem): Intent =
-        Intent("$WHOLPHIN.PLAYBACK")
+        wholphinIntent("$WHOLPHIN.PLAYBACK", item).putExtra("position", item.positionMs)
+
+    /** Opens the item's detail page in Wholphin. */
+    fun detailsIntent(item: MediaItem): Intent = wholphinIntent(Intent.ACTION_VIEW, item)
+
+    private fun wholphinIntent(action: String, item: MediaItem) =
+        Intent(action)
             .setClassName(WHOLPHIN, "$WHOLPHIN.MainActivity")
             .putExtra("itemId", item.id)
-            .putExtra("position", item.positionMs)
             .putExtra("serverId", serverId)
             .putExtra("userId", userId)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    /** Common query parameters; also looks up the user and server IDs on first use. */
+    private fun baseQuery(): String {
+        val user = userId ?: findUserId().also { userId = it }
+        if (serverId == null) serverId = get("/System/Info/Public").let(::JSONObject).getString("Id")
+        return "userId=$user&Limit=$MAX_ITEMS&EnableImageTypes=Primary,Thumb,Backdrop&ImageTypeLimit=1"
+    }
 
     private fun findUserId(): String {
         val users = JSONArray(get("/Users"))
@@ -94,7 +108,7 @@ object Jellyfin {
         val subtitle = if (isEpisode) {
             "S${item.optInt("ParentIndexNumber")}:E${item.optInt("IndexNumber")} · ${item.optString("Name")}"
         } else {
-            item.optString("ProductionYear")
+            movieDetails(item)
         }
         return MediaItem(
             id = item.getString("Id"),
@@ -104,6 +118,17 @@ object Jellyfin {
             progress = ((userData?.optDouble("PlayedPercentage", 0.0) ?: 0.0) / 100).toFloat(),
             positionMs = (userData?.optLong("PlaybackPositionTicks") ?: 0L) / TICKS_PER_MS,
         )
+    }
+
+    /** "2015 · 2h 1m · ★ 7.4", leaving out whatever the server doesn't know. */
+    private fun movieDetails(item: JSONObject): String {
+        val minutes = item.optLong("RunTimeTicks") / TICKS_PER_MS / 60_000
+        val rating = item.optDouble("CommunityRating")
+        return listOfNotNull(
+            item.optInt("ProductionYear").takeIf { it > 0 }?.toString(),
+            minutes.takeIf { it > 0 }?.let { if (it >= 60) "${it / 60}h ${it % 60}m" else "${it}m" },
+            rating.takeIf { !it.isNaN() }?.let { "★ %.1f".format(it) },
+        ).joinToString(" · ")
     }
 
     /** A 16:9 image: the show's thumb for episodes, otherwise the item's own thumb or backdrop. */
