@@ -9,6 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.Instant
 
 class MediaItem(
     val id: String,
@@ -49,9 +50,27 @@ object Jellyfin {
         val nextUp = items(get("/Shows/NextUp?$query&EnableResumable=false"))
         // Skip "next up" for a show that already has an episode in progress.
         val inProgress = resume.mapNotNull { it.optString("SeriesId").ifEmpty { null } }.toSet()
-        return (resume + nextUp.filter { it.optString("SeriesId") !in inProgress })
+        val dated = resume.map { it to lastPlayed(it) } +
+            nextUp.filter { it.optString("SeriesId") !in inProgress }.map { it to seriesLastPlayed(it) }
+        // Most recently watched first, mixing both lists.
+        return dated.sortedByDescending { it.second }
             .take(MAX_ITEMS)
-            .map(::toMediaItem)
+            .map { toMediaItem(it.first) }
+    }
+
+    private fun lastPlayed(item: JSONObject): Instant {
+        val userData = item.optJSONObject("UserData")
+        if (userData == null || userData.isNull("LastPlayedDate")) return Instant.EPOCH
+        return Instant.parse(userData.getString("LastPlayedDate"))
+    }
+
+    /** A "next up" episode hasn't been played itself, so it counts from the last played episode of its show. */
+    private fun seriesLastPlayed(episode: JSONObject): Instant {
+        val latest = items(get(
+            "/Items?userId=$userId&ParentId=${episode.getString("SeriesId")}&IncludeItemTypes=Episode" +
+                "&Recursive=true&IsPlayed=true&SortBy=DatePlayed&SortOrder=Descending&Limit=1&EnableImages=false",
+        ))
+        return maxOf(lastPlayed(episode), latest.firstOrNull()?.let(::lastPlayed) ?: Instant.EPOCH)
     }
 
     fun randomMovies(): List<MediaItem> =

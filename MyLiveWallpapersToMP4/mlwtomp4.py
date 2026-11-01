@@ -57,7 +57,7 @@ def browse_for_folder():
     folder = filedialog.askdirectory(title="Select folder containing .mlw files")
     return folder or None
 
-
+    
 if __name__ == "__main__":
     folder = DEFAULT_FOLDER
     if not os.path.isdir(folder):
