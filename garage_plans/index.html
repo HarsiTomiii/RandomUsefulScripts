@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Garage Shelf Planner</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">🪚 Garage Planner</div>
+  <div class="proj">
+    <select id="projSel" title="Switch project"></select>
+    <input id="dname" class="dname" title="Rename this project">
+    <details class="menu"><summary class="btn">Project ▾</summary>
+      <div class="menu-list">
+        <button class="btn" data-proj="new-shelf">+ New shelf rack</button>
+        <button class="btn" data-proj="new-bench">+ New workbench</button>
+        <button class="btn" data-proj="dup">Duplicate this project</button>
+        <button class="btn danger" data-proj="del">Delete this project</button>
+      </div>
+    </details>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="design">Designer</button>
+    <button class="tab" data-tab="3d">3D</button>
+    <button class="tab" data-tab="checks">Checks</button>
+    <button class="tab" data-tab="cut">Cut plan</button>
+    <button class="tab" data-tab="cost">Cost</button>
+    <button class="tab" data-tab="guide">Build guide</button>
+    <button class="tab" data-tab="library">Catalog</button>
+  </nav>
+  <div class="actions">
+    <button class="btn" id="undo" title="Undo (Ctrl+Z)">↶</button>
+    <button class="btn" id="redo" title="Redo (Ctrl+Y)">↷</button>
+    <button class="btn" id="export" title="Download this project (with the catalog) as a file">Save file</button>
+    <label class="btn" title="Open a saved project file (added as a new project)">Open file<input type="file" id="import" accept=".json,application/json" hidden></label>
+  </div>
+</header>
+
+<div id="status" class="status"></div>
+
+<main>
+  <section class="page active" id="page-design">
+    <aside id="panel" class="panel"></aside>
+    <div class="views">
+      <div class="view big"><div class="vh" id="vt-front"></div><svg id="svg-front" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <div class="view"><div class="vh" id="vt-side"></div><svg id="svg-side" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <div class="view"><div class="vh">3D <span class="muted">(drag to orbit, right-drag to pan, wheel to zoom)</span></div><div id="mini3d" class="host3d"></div></div>
+      <div class="view wide"><div class="vh" id="vt-plan"></div><svg id="svg-plan" preserveAspectRatio="xMidYMid meet"></svg></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-3d">
+    <div class="tools3d">
+      <label class="chk"><input type="checkbox" id="o-wall" checked> Wall</label>
+      <label class="inline">Shelf boards <select id="o-osb"><option value="solid">solid</option><option value="ghost">see-through</option><option value="hidden">hidden</option></select></label>
+      <label class="chk"><input type="checkbox" id="o-fast"> Fasteners</label>
+      <label class="inline">Exploded <input type="range" id="o-explode" min="0" max="1" step="0.05" value="0"></label>
+      <button class="btn" id="o-frame">Reset view</button>
+    </div>
+    <div id="full3d" class="host3d full"></div>
+  </section>
+  <section class="page" id="page-checks"></section>
+  <section class="page" id="page-cut"></section>
+  <section class="page" id="page-cost"></section>
+  <section class="page" id="page-guide"></section>
+  <section class="page" id="page-library"></section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/engineBench.js"></script>
+<script src="js/cutting.js"></script>
+<script src="js/views2d.js"></script>
+<script src="js/viewsBench.js"></script>
+<script src="js/view3d.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/uiBench.js"></script>
+<script src="js/types.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
