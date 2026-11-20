@@ -1,0 +1,226 @@
+{
+  "app": "garage-planner-shelf",
+  "design": {
+    "version": 1,
+    "name": "Garage shelf rack",
+    "W": 4000,
+    "D": 800,
+    "grade": "C18",
+    "serviceClass": 2,
+    "deflLimit": 300,
+    "roles": {
+      "ledger": "p_gx0mt2i",
+      "cross": "p24x49",
+      "front": "p24x49",
+      "leg": "p_gx0mt2i"
+    },
+    "sheetId": "osb12",
+    "legOrient": "wideX",
+    "legTopExtra": 0,
+    "linkCross": true,
+    "cross": [
+      {
+        "id": "c_hekvuz5",
+        "x": 29
+      },
+      {
+        "id": "c_pr25ti8",
+        "x": 522
+      },
+      {
+        "id": "c_n80fusg",
+        "x": 1014
+      },
+      {
+        "id": "c_nvxbtd8",
+        "x": 1508
+      },
+      {
+        "id": "c_t9ro4er",
+        "x": 2000
+      },
+      {
+        "id": "c_c3aiujv",
+        "x": 2492
+      },
+      {
+        "id": "c_ifgsfku",
+        "x": 2986
+      },
+      {
+        "id": "c_0undtzb",
+        "x": 3478
+      },
+      {
+        "id": "c_mwmdmwr",
+        "x": 3972
+      }
+    ],
+    "shelves": [
+      {
+        "id": "s_p6y5pgu",
+        "z": 1500,
+        "load": 100,
+        "cross": []
+      },
+      {
+        "id": "s_srbpnvf",
+        "z": 713,
+        "load": 100,
+        "cross": []
+      }
+    ],
+    "legs": [
+      {
+        "id": "l_4myvyqb",
+        "x": 48
+      },
+      {
+        "id": "l_n0zbijo",
+        "x": 2000
+      },
+      {
+        "id": "l_0axc6p3",
+        "x": 3953
+      }
+    ],
+    "rules": {
+      "ledgerWall": {
+        "items": [
+          {
+            "type": "f6x100",
+            "n": 1
+          },
+          {
+            "type": "plug8",
+            "n": 1
+          }
+        ],
+        "spacing": 400,
+        "edge": 100,
+        "stagger": true
+      },
+      "crossLedger": {
+        "items": [
+          {
+            "type": "f5x80",
+            "n": 2
+          }
+        ]
+      },
+      "crossFront": {
+        "items": [
+          {
+            "type": "f5x80",
+            "n": 2
+          }
+        ]
+      },
+      "frontLeg": {
+        "items": [
+          {
+            "type": "f5x80",
+            "n": 4
+          }
+        ]
+      },
+      "osbCross": {
+        "items": [
+          {
+            "type": "f4x40",
+            "n": 1
+          }
+        ],
+        "spacing": 200,
+        "edge": 50
+      }
+    },
+    "overrides": {},
+    "manual": [],
+    "extras": [],
+    "cut": {
+      "kerf": 3,
+      "trim": 5,
+      "minOffcut": 300
+    },
+    "snap": 5
+  },
+  "library": {
+    "pricesEdited": true,
+    "profiles": [
+      {
+        "id": "p24x49",
+        "name": "38x57x2400 Normal timber",
+        "t": 57,
+        "h": 38,
+        "stock": [
+          {
+            "len": 2400,
+            "price": 26.4
+          }
+        ]
+      },
+      {
+        "id": "p_gx0mt2i",
+        "name": "45x95x2400 Normal timber",
+        "t": 45,
+        "h": 95,
+        "stock": [
+          {
+            "len": 2400,
+            "price": 48
+          }
+        ]
+      }
+    ],
+    "sheets": [
+      {
+        "id": "osb12",
+        "name": "OSB/3 11 mm",
+        "mat": "OSB3",
+        "t": 11,
+        "len": 1200,
+        "wid": 800,
+        "price": 135
+      }
+    ],
+    "fasteners": [
+      {
+        "id": "f5x80",
+        "name": "Wood screw 6×80 beams",
+        "kind": "screw",
+        "perBox": 100,
+        "boxPrice": 180,
+        "cap": 0.9,
+        "note": "Design shear capacity per screw, 45 mm softwood. Used for front beam → leg."
+      },
+      {
+        "id": "f4x40",
+        "name": "Wood screw 4×30 plates",
+        "kind": "screw",
+        "perBox": 200,
+        "boxPrice": 105,
+        "cap": null,
+        "note": "OSB to crossbeams."
+      },
+      {
+        "id": "f6x100",
+        "name": "Screw 6×100 (for wall plugs)",
+        "kind": "screw",
+        "perBox": 50,
+        "boxPrice": 125,
+        "cap": null,
+        "note": "Length ≈ ledger thickness + plug length + 5 mm."
+      },
+      {
+        "id": "plug8",
+        "name": "Nylon plug 8×65 (brick)",
+        "kind": "plug",
+        "perBox": 45,
+        "boxPrice": 100,
+        "cap": 0.4,
+        "note": "Recommended working load per plug in YOUR brick. Check the manufacturer table. Hollow brick is much lower!"
+      }
+    ]
+  }
+}
