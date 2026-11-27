@@ -1,0 +1,45 @@
+# lgtv-pc configuration — ~/.config/lgtv-pc/config.toml
+# `lgtv-pc setup` fills in ip / mac / hdmi for you.
+
+[tv]
+ip = ""            # TV: Settings > General > Network
+mac = ""           # for Wake-on-LAN (wired MAC if the TV is on Ethernet)
+hdmi = 1           # HDMI port the PC is plugged into
+pc_icon = true     # set the input icon to "PC" (needed for 4:4:4 chroma on the C6)
+# key_file = ""    # default: client-key.sqlite next to this file
+
+[automation]
+only_when_on_pc_input = true   # never power off / blank the TV while it shows another source
+power_on_at_boot = true
+power_off_at_shutdown = true   # skipped on reboot
+off_on_sleep = true            # off on suspend, back on at resume
+idle_screen_off_minutes = 10   # used by the idle service (install.sh --idle)
+wake_timeout_seconds = 30
+
+# Profile used by `lgtv-pc apply` / `check` without an argument.
+profile = "pc"
+
+# Built-in profiles are "pc" and "film" (see lgtv_pc.py). Anything here is merged on top.
+# Settings are stored per input (hdmiN_pc), per picture mode, so SDR and HDR are configured separately.
+#
+# gamma: low=1.9, medium=2.2, high1=BT.1886, high2=2.4
+# colorGamut: auto | native | wide | extended | dynamic
+#
+# [profiles.pc]
+# sdr_mode = "game"          # Game Optimizer: lowest input lag + VRR, made accurate by the settings below
+# hdr_mode = "hdrGame"
+#
+# [profiles.pc.sdr]
+# gamma = "medium"
+# colorGamut = "auto"
+# backlight = "60"           # OLED Pixel Brightness, if you want it enforced
+# colorTemperature = "50"    # read your preferred value with: lgtv-pc get picture colorTemperature
+#
+# [profiles.pc.hdr]
+# hgig = "on"
+#
+# [profiles.film]
+# sdr_mode = "filmMaker"
+# hdr_mode = "hdrFilmMaker"
+# [profiles.film.sdr]
+# gamma = "high1"

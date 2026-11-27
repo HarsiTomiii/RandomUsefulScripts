@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TV Calibration</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">TV Calibration <span class="muted">· Phase 1: patterns & settings</span></div>
+  <nav class="devices" id="devices" aria-label="Device"></nav>
+</header>
+
+<main>
+  <section class="intro">
+    <p id="deviceBlurb"></p>
+    <div class="actions">
+      <button class="btn primary" id="startAll">▶ Start pattern walkthrough</button>
+      <span class="sep"></span>
+      <label class="inline">Pattern pack
+        <select id="packRes">
+          <option value="3840x2160">3840×2160</option>
+          <option value="1920x1080">1920×1080</option>
+        </select>
+      </label>
+      <button class="btn" id="exportPack">⬇ Export PNG pack (.zip)</button>
+      <span class="status" id="packStatus"></span>
+    </div>
+    <p class="keys">In the viewer: <kbd>◀</kbd><kbd>▶</kbd> pattern · <kbd>▲</kbd><kbd>▼</kbd> variant · <kbd>OK</kbd>/<kbd>Enter</kbd> option · <kbd>I</kbd> pin info · <kbd>S</kbd> save PNG · <kbd>F</kbd> fullscreen · <kbd>Esc</kbd>/<kbd>Back</kbd> close. Mouse: click pins info, wheel changes variant.</p>
+  </section>
+
+  <h2>Test patterns</h2>
+  <section class="grid" id="patternGrid"></section>
+
+  <h2>Settings checklist <span class="muted" id="checkProgress"></span> <button class="btn small" id="resetChecks">Reset</button></h2>
+  <section id="checklist"></section>
+
+  <footer class="muted">Patterns are full-range 8-bit sRGB values drawn 1:1 in device pixels. These are visual checks only. Phase 2 adds the Pixel 8 camera meter.</footer>
+</main>
+
+<script src="js/patterns.js"></script>
+<script src="js/checklists.js"></script>
+<script src="js/zip.js"></script>
+<script src="js/viewer.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

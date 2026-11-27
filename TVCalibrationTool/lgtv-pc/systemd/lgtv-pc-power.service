@@ -1,0 +1,17 @@
+[Unit]
+Description=LG TV on at boot, off at shutdown (lgtv-pc)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=@USER@
+ExecStart=@BIN@ --config @CONFIG@ on --boot
+# Runs while the network is still up (this unit is ordered after network-online). Skipped on reboot.
+ExecStop=@BIN@ --config @CONFIG@ off --shutdown
+TimeoutStartSec=60
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

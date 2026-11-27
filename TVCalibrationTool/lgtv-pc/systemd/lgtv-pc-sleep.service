@@ -1,0 +1,17 @@
+[Unit]
+Description=LG TV off on suspend, on at resume (lgtv-pc)
+Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=@USER@
+ExecStart=@BIN@ --config @CONFIG@ off --sleep
+# ExecStop runs when sleep.target is left, i.e. after resume. `on` retries Wake-on-LAN until the network is back.
+ExecStop=@BIN@ --config @CONFIG@ on --resume
+TimeoutStartSec=15
+TimeoutStopSec=60
+
+[Install]
+WantedBy=sleep.target

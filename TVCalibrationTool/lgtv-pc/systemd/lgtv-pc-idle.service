@@ -1,0 +1,14 @@
+[Unit]
+Description=Blank the LG TV panel when the session is idle (lgtv-pc)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+# `lgtv-pc idle` runs swayidle (ext-idle-notify, implemented by KWin) with the timeout from the config.
+# Apps that inhibit idle (video players, games via SDL, browsers playing video) keep the screen on.
+ExecStart=@BIN@ --config @CONFIG@ idle
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
